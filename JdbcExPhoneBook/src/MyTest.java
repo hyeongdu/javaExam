@@ -2,17 +2,21 @@
 public class MyTest
 {
 	
-	 int num =0;
-	
-	public  void addTwoNum(int n1, int n2)
+	public String loginMenu(String name, String password)
 	{
-		System.out.println(n1 + n2);
+		if(name.equals("1")&&password.equals("2"))
+		{
+			return " 나야나" ;
+					
+		}
+		else
+			return " 응 아니야";
 	}
 	public static void main(String[] args)
 	{
-		MyTest mt = new MyTest();
-		mt.addTwoNum(1, 2);
-		System.out.println(mt.num);
+		
+		MyTest ms = new MyTest();
+		System.out.println(ms.loginMenu("1","1"));
 	}
 
 }

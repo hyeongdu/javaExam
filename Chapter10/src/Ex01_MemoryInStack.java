@@ -4,7 +4,7 @@ public class Ex01_MemoryInStack
 	{
 		int num1 = 10;
 		int num2 = 20;
-		int num3 = adder(num1, num2);
+		adder(num1, num2);
 		System.out.println("-----------------");		
 	}
 	

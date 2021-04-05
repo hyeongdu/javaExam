@@ -30,8 +30,21 @@ public class MyPhoneBook
 	
 	
 	static Scanner sc = new Scanner(System.in);
+	Connection con = null;
+	PreparedStatement pstmt1 ;
+	PreparedStatement pstmt2 ;
+	PreparedStatement pstmt3 ;
 	
-	public static void showMenu() {
+    
+	public static void main(String[] args)
+	{
+		MyPhoneBook mpb = new MyPhoneBook();
+		mpb.doRun();
+			
+			
+		
+	}
+	public void showMenu() {
 		System.out.println("[메뉴선택]");
 		System.out.println("1.전화번호 입력");
 		System.out.println("2.전화번호 조회");
@@ -40,98 +53,126 @@ public class MyPhoneBook
 		System.out.println("선택 : ");
 	}
 	
+	public void addNumber()
+	{
+		System.out.println("이름 : ");
+		String name = sc.nextLine();
+		System.out.println("전화번호 : ");
+		String phoneNumber = sc.nextLine();
+		System.out.println("이메일 : ");
+		String email = sc.nextLine();
 	
-    
-    
-	public static void main(String[] args){
-		Connection con = null;
-		PreparedStatement pstmt1 = null;
-		PreparedStatement pstmt2 = null;
-		ResultSet rs = null;
-		StringBuffer sb = new StringBuffer();
-		int updateCount ;
-		int choice;
-		try 
-		{
-			con = DriverManager.getConnection(
-					"jdbc:oracle:thin:@localhost:1521:xe",
-					"scott",
-					"tiger");
+		String sql = "insert into PhoneBook values(?,?,?,)";
 		
-			while(true) 			
-			{
-				showMenu();
-				choice = sc.nextInt();
-				sc.nextLine();
-				switch (choice) {
-				case 1:
-					System.out.println("이름 : ");
-					String name = sc.nextLine();
-					System.out.println("전화번호 : ");
-					String phone = sc.nextLine();
-					System.out.println("이메일 : ");
-					String email = sc.nextLine();
-		    	
-					sb.append("insert into test2 values( '" + name);
-					sb.append("'  , ' " + phone);
-					sb.append("' ,  ' " + email + "' )");
-				
-					pstmt1 = con.prepareStatement(sb.toString());
-					updateCount = pstmt1.executeUpdate();
-					System.out.println("insertCount : " + updateCount );
-					break;
-				
-				case 2:
-					sb.setLength(0);
-					System.out.println("이름 : ");
-					name = sc.nextLine();
-					sb.append("select * from test2 where name in ('" + name);
-					sb.append("')");
-					pstmt1 = con.prepareStatement(sb.toString());
-					rs = pstmt1.executeQuery();
-					while(rs.next())
-					{
-						System.out.print("name : " +  rs.getString("name")) ;
-						System.out.print(" , phone  : " + rs.getString("phone"));
-						if(rs.getString("email") != null)
-						System.out.println(" , email  : " + rs.getString("email"));
-						if(rs.getString("email") == null || (rs.getString("email") != ""))
-						System.out.println("이메일이 없습니다. ");
-					}
-				
-					break;
-				case 3:
-					sb.setLength(0);
-					System.out.println("이름 : ");
-					name = sc.nextLine();
-					sb.append("delete test2    ");
-					sb.append(" where name in ( '" + name );
-					sb.append("' ) " );
-					pstmt1 = con.prepareStatement(sb.toString());
-					pstmt1.executeUpdate();
-				
-					break;
-					
-				case 4:
-			
-					System.out.println("프로그램을 종료합니다.");
-					return;	
-				default :
-					System.out.println("잘못 입력 하셨습니다.");
-					break;	
-				}
-				
-				
-			}	
-			
-		}catch (SQLException sqle)
+		try
 		{
-			sqle.printStackTrace();
+			pstmt1 = con.prepareStatement(sql);
+			pstmt1.setString(1, name);
+			pstmt1.setString(2, phoneNumber);
+			pstmt1.setString(3, email);
+			int updateCount = pstmt1.executeUpdate();
+			System.out.println("추가되었습니다.");
+		}catch(Exception e)
+		{
+			System.out.println("입력 에러입니다.");
 		}
 		
 	}
+	public void selNumber()
+	{
+		System.out.println("조회할 이름 : ");
+		String name = sc.nextLine();
+		String sql = "select * from PhoneBook where name = ?";
+		try 
+		{
+		
+			pstmt2 = con.prepareStatement(sql);
+			pstmt1.setString(1, name);
+			ResultSet rs = pstmt2.executeQuery();
+			if(rs.next()) 
+			{
+				System.out.print("name : " + rs.getString(1));
+				System.out.println("phoneNumber : " + rs.getByte(2));
+				if(rs.getString(3)!=null)
+				{
+					System.out.println("email : " + rs.getByte(3));
+				}
+				else
+				{
+					System.out.println("해당값이 없습니다. ");
+				}
+			}
+			rs.close();
+		} catch (Exception e)
+		{
+			System.out.println("알 수 없는 에러");
+		}
+	}
+		
+	public void delNumber()
+	{
+		System.out.println("삭제할 이름 : ");
+		String name = sc.nextLine();
+		
+		String sql = "delete from PhoneBook where name = ?";
+		try 
+		{
+			pstmt3 = con.prepareStatement(sql);
+			pstmt3.setString(1, name);
+			int updateCount = pstmt3.executeUpdate();
+			System.out.println("삭제되었습니다");
+		}catch(Exception e)
+		{
+			System.out.println("삭제 에러입니다. ");
+		}
+	}
 	
+	public void connectDatabase()
+	{
+		try {
+			con = DriverManager.getConnection(
+				"jdbc:oracle:thin:@localhost:1521:xe",
+				"scott",
+				"tiger");
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	
+	}
+	public void doRun()
+	{
+		connectDatabase();
+		int choice;
+		while(true) 			
+		{
+			showMenu();
+			choice = sc.nextInt();
+			sc.nextLine();
+			switch (choice) {
+			case 1:
+				addNumber();
+				break;
+			
+			case 2:
+				selNumber();
+				break;
+			case 3:
+				delNumber();
+				break;
+				
+			case 4:
+		
+				System.out.println("프로그램을 종료합니다.");
+				return;	
+			default :
+				System.out.println("잘못 입력 하셨습니다.");
+				break;	
+			}
+			
+			
+		}
+	}
 	
 }
 
